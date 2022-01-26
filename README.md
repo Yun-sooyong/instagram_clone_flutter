@@ -1,7 +1,7 @@
 # instagram_clone_flutter
 
 Instagram Clone App     
-[Youtube Source](https://www.youtube.com/watch?v=mEPm9w5QlJM&list=PLCZmvobnpEh78eOQ-6DqEYwO3Bw9TFxCE&index=3&t=5929s&ab_channel=freeCodeCamp.org)
+[Youtube Source](https://youtu.be/mEPm9w5QlJM?list=PLCZmvobnpEh78eOQ-6DqEYwO3Bw9TFxCE)
 
 ## Getting Started
 
