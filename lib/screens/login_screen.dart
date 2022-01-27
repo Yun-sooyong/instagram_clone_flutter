@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_clone_flutter/resources/auth_method.dart';
+import 'package:instagram_clone_flutter/screens/home_screen.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
+import 'package:instagram_clone_flutter/utils/utils.dart';
 import 'package:instagram_clone_flutter/widgets/text_field_input.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -14,12 +17,39 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+  }
+
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethod().loginUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    if (res == 'success') {
+      // login 에 성공하면 home screen으로 이동
+      // pushReplacement : 완전히 대체할때 사용, 되돌아가기x (splash screen 등 다시 돌아가지 않을 떄 사용)
+      // pushReplacementNamed : pushReplacement와 같지만 route name을 받음
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+    } else {
+      showSnackBar(res, context);
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -61,9 +91,13 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               // login button
               InkWell(
-                onTap: () {},
+                onTap: loginUser,
                 child: Container(
-                  child: const Text('login'),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          color: primaryColor,
+                        )
+                      : const Text('login'),
                   width: double.infinity,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 12),

@@ -12,15 +12,16 @@ class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<SignupScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   Uint8List? _image;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,13 +32,35 @@ class _LoginScreenState extends State<SignupScreen> {
     _usernameController.dispose();
   }
 
-  // SECTION void selectImage method
+  // SECTION Method Part
+  //void selectImage method
   void selectImage() async {
     // NOTE 폰 메모리에서 사진을 가져와서 _image 변수에 저장
     Uint8List image = await pickImage(ImageSource.gallery);
+    // 이미지를 갤러리에서 가져와 저장한 뒤 위젯을 재 실행
     setState(() {
       _image = image;
     });
+  }
+
+  void signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethod().signUpUser(
+        email: _emailController.text,
+        password: _passwordController.text,
+        username: _usernameController.text,
+        bio: _bioController.text,
+        file: _image!);
+
+    setState(() {
+      _isLoading = false;
+    });
+    // 가입 과정중 문제가 발생하면 오류 내용을 스낵바로 출력
+    if (res != 'success') {
+      showSnackBar(res, context);
+    }
   }
   //!SECTION
 
@@ -122,18 +145,15 @@ class _LoginScreenState extends State<SignupScreen> {
               InkWell(
                 // 버튼을 누르면 textfield 의 내용이 firebase auth 에 저장되어야함
                 // controller로 입력값을 받아 signUpUser 메서드에 입력
-                onTap: () async {
-                  String res = await AuthMethod().signUpUser(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                    username: _usernameController.text,
-                    bio: _bioController.text,
-                    //file:
-                  );
-                  print(res);
-                },
+                onTap: signUpUser,
                 child: Container(
-                  child: const Text('Sign Up'),
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: primaryColor,
+                          ),
+                        )
+                      : const Text('Sign Up'),
                   width: double.infinity,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -151,32 +171,6 @@ class _LoginScreenState extends State<SignupScreen> {
               Flexible(
                   child: Container(),
                   flex: 2), // 위 아래로 같은 비율의 공간을 주어 내용이 가운데로 오게 함
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Container(
-              //       child: const Text(
-              //         '회원이 아니신가요?',
-              //       ),
-              //       padding: const EdgeInsets.symmetric(
-              //         vertical: 8,
-              //       ),
-              //     ),
-              //     GestureDetector(
-              //       onTap: () {},
-              //       child: Container(
-              //         child: const Text(
-              //           '회원가입',
-              //           style: TextStyle(fontWeight: FontWeight.bold),
-              //         ),
-              //         padding: const EdgeInsets.symmetric(
-              //           vertical: 8,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // )
-              // sign up
             ],
           ),
         ),
