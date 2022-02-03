@@ -10,6 +10,7 @@ class AuthMethod {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // ANCHOR Provider get User detail data
   // 현재 유저 정보를 model의 fromSnap 에 담아서 전달
   Future<model.User> getUserDetailS() async {
     User currentUser = _auth.currentUser!;
@@ -17,6 +18,7 @@ class AuthMethod {
     DocumentSnapshot documentSnapshot =
         await _firestore.collection('user').doc(currentUser.uid).get();
 
+    print(model.User.fromSnap(documentSnapshot));
     return model.User.fromSnap(documentSnapshot);
   }
 
