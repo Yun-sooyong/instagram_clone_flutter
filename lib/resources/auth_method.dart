@@ -4,10 +4,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:instagram_clone_flutter/resources/storage_method.dart';
+import 'package:instagram_clone_flutter/models/user.dart' as model;
 
 class AuthMethod {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // 현재 유저 정보를 model의 fromSnap 에 담아서 전달
+  Future<model.User> getUserDetailS() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot documentSnapshot =
+        await _firestore.collection('user').doc(currentUser.uid).get();
+
+    return model.User.fromSnap(documentSnapshot);
+  }
 
   // SECTION sign up user
   // Future는 에러처리와 함께 해야함
@@ -41,17 +52,20 @@ class AuthMethod {
          * add() => 문서 추가, doc(docID) 미지정(자동 생성)
          */
         // ANCHOR add user to database
-        await _firestore.collection('users').doc(userCredential.user!.uid).set(
-          {
-            'username': username,
-            'uid': userCredential.user!.uid,
-            'email': email,
-            'bio': bio,
-            'followers': [],
-            'following': [],
-            'photoUrl': photoUrl,
-          },
+        model.User user = model.User(
+          username: username,
+          uid: userCredential.user!.uid,
+          email: email,
+          bio: bio,
+          photoUrl: photoUrl,
+          followers: [],
+          following: [],
         );
+
+        await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set(user.toJson());
         res = 'success';
       }
       // 중복 email , password 6자리 검사
