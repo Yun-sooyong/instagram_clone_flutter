@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:instagram_clone_flutter/resources/storage_method.dart';
 import 'package:instagram_clone_flutter/models/user.dart' as model;
@@ -16,22 +15,22 @@ class AuthMethod {
     User currentUser = _auth.currentUser!;
 
     DocumentSnapshot documentSnapshot =
-        await _firestore.collection('user').doc(currentUser.uid).get();
+        await _firestore.collection('users').doc(currentUser.uid).get();
 
-    print(model.User.fromSnap(documentSnapshot));
     return model.User.fromSnap(documentSnapshot);
   }
 
   // SECTION sign up user
   // Future는 에러처리와 함께 해야함
-  Future<String> signUpUser(
-      {required String email,
-      required String password,
-      required String username,
-      required String bio,
-      required Uint8List file}) async {
+  Future<String> signUpUser({
+    required String email,
+    required String password,
+    required String username,
+    required String bio,
+    required Uint8List file,
+  }) async {
     // error try catch
-    late String res;
+    late String res = 'Some error Occurred';
     try {
       if (email.isNotEmpty ||
           password.isNotEmpty ||
@@ -40,10 +39,11 @@ class AuthMethod {
           file != null) {
         // resister user
         // createUserWithEmailAndPassword : email, password 로 회원가입
-        UserCredential userCredential = await _auth
-            .createUserWithEmailAndPassword(email: email, password: password);
-
-        print(userCredential.user!.uid);
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
 
         String photoUrl = await StorageMethods()
             .uploadImageToStorage('profilePics', file, false);
@@ -54,7 +54,7 @@ class AuthMethod {
          * add() => 문서 추가, doc(docID) 미지정(자동 생성)
          */
         // ANCHOR add user to database
-        model.User user = model.User(
+        model.User _user = model.User(
           username: username,
           uid: userCredential.user!.uid,
           email: email,
@@ -67,10 +67,11 @@ class AuthMethod {
         await _firestore
             .collection('users')
             .doc(userCredential.user!.uid)
-            .set(user.toJson());
+            .set(_user.toJson());
         res = 'success';
       }
       // 중복 email , password 6자리 검사
+      // FIXME add firebase error code message
     } catch (err) {
       res = err.toString();
     }
@@ -79,8 +80,10 @@ class AuthMethod {
   // !SECTION
 
   // SECTION logining in user
-  Future<String> loginUser(
-      {required String email, required String password}) async {
+  Future<String> loginUser({
+    required String email,
+    required String password,
+  }) async {
     String res = 'Some error occurred';
 
     try {

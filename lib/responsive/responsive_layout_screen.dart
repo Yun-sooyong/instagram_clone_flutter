@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_clone_flutter/providers/user_provider.dart';
-import 'package:instagram_clone_flutter/utils/dimensions.dart';
+import 'package:instagram_clone_flutter/utils/global_variable.dart';
 import 'package:provider/provider.dart';
 
 // 현재 화면의 크기에 따라 웹 스크린과 모바일 스크린을 나눠서 보여줌
@@ -26,7 +26,8 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
   }
 
   addData() async {
-    UserProvider _userProvider = Provider.of(context, listen: false);
+    UserProvider _userProvider =
+        Provider.of<UserProvider>(context, listen: false);
     await _userProvider.refreshUser();
   }
 
