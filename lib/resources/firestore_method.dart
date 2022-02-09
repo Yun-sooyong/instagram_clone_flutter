@@ -41,4 +41,21 @@ class FirestoreMethods {
     }
     return res;
   }
+
+  Future<void> likePost(String postId, String uid, List likes) async {
+    try {
+      // likes 에 이미 uid가 있을경우 likes list 에서 해당 uid 삭제
+      if (likes.contains(uid)) {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayRemove([uid]),
+        });
+      } else {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayUnion([uid]),
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
 }
