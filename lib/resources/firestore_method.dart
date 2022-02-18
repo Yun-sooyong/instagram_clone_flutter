@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 class FirestoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // upload post
+  // ANCHOR upload post
   Future<String> uploadPost(
     String description,
     Uint8List file,
@@ -43,6 +43,7 @@ class FirestoreMethods {
     return res;
   }
 
+  // ANCHOR like post
   Future<void> likePost(String postId, String uid, List likes) async {
     try {
       // likes 에 이미 uid가 있을경우 likes list 에서 해당 uid 삭제
@@ -60,6 +61,7 @@ class FirestoreMethods {
     }
   }
 
+  // ANCHOR post comment
   Future<void> postComment(String postId, String text, String uid, String name,
       String profileImage) async {
     try {
@@ -90,6 +92,34 @@ class FirestoreMethods {
   Future<void> deletePost(String postId) async {
     try {
       await _firestore.collection('posts').doc(postId).delete();
+    } catch (err) {
+      print(err.toString());
+    }
+  }
+
+  // ANCHOR follow user
+  Future<void> followUser(String uid, String followId) async {
+    try {
+      DocumentSnapshot snap =
+          await _firestore.collection('users').doc(uid).get();
+      List following = (snap.data()! as dynamic)['following'];
+
+      // following list 에 입력받은 followId 가 있으면
+      if (following.contains(followId)) {
+        await _firestore.collection('users').doc(followId).update({
+          'followers': FieldValue.arrayRemove([uid]),
+        });
+        await _firestore.collection('users').doc(uid).update({
+          'following': FieldValue.arrayRemove([followId]),
+        });
+      } else {
+        await _firestore.collection('users').doc(followId).update({
+          'followers': FieldValue.arrayUnion([uid]),
+        });
+        await _firestore.collection('users').doc(uid).update({
+          'following': FieldValue.arrayUnion([followId]),
+        });
+      }
     } catch (err) {
       print(err.toString());
     }

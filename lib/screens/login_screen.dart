@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagram_clone_flutter/resources/auth_method.dart';
 import 'package:instagram_clone_flutter/screens/sign_up_screen.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
+import 'package:instagram_clone_flutter/utils/global_variable.dart';
 import 'package:instagram_clone_flutter/utils/utils.dart';
 import 'package:instagram_clone_flutter/widgets/text_field_input.dart';
 
@@ -73,7 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Container(
           // symmetric = 상하, 좌우를 지정하여 같은 값으로 padding을 줌
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: MediaQuery.of(context).size.width > webScreenSize
+              ? EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width / 3)
+              : const EdgeInsets.symmetric(horizontal: 32),
           // infinity = 화면의 최대값
           // MediaQuery.of(context).size.width 와 같은 결과
           width: double.infinity,

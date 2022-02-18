@@ -109,4 +109,9 @@ class AuthMethod {
     return res;
   }
   // !SECTION
+
+  // ANCHOR Sign out
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
 }
